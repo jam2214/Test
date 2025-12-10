@@ -25,7 +25,7 @@ class UpdateDeviceStatus(Script):
 
         def is_ip_reachable(ip):
             # Linux ping: -c 1
-            command = ["ping", "-c", "1", ip]
+            command = ["ping", "-n", "1", ip]
             return subprocess.call(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0
 
         output = is_ip_reachable(self.ip_address)
@@ -53,3 +53,4 @@ class UpdateDeviceStatus(Script):
             self.log_info(f"Ping result: {output}")
             self.log_info(f"Response: {response.status_code} {response.text}")
             
+
