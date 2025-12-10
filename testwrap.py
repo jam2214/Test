@@ -32,11 +32,24 @@ class UpdateDeviceStatus(Script):
 
         device_id = 39  # DCIM device ID to update
 
-        payload = {"custom_fields": {"Status": output}}
+        if output:
+            
+            payload = {"custom_fields": {"Status": True}}
 
-        url = f"https://10.250.11.12/api/dcim/devices/{device_id}/"
+            url = f"https://10.250.11.12/api/dcim/devices/{device_id}/"
 
-        response = requests.patch(url, headers=headers, verify=False, json=payload)
+            response = requests.patch(url, headers=headers, verify=False, json=payload)
 
-        self.log_info(f"Ping result: {output}")
-        self.log_info(f"Response: {response.status_code} {response.text}")
+            self.log_info(f"Ping result: {output}")
+            self.log_info(f"Response: {response.status_code} {response.text}")
+
+        else:
+            payload = {"custom_fields": {"Status": False}}
+
+            url = f"https://10.250.11.12/api/dcim/devices/{device_id}/"
+
+            response = requests.patch(url, headers=headers, verify=False, json=payload)
+
+            self.log_info(f"Ping result: {output}")
+            self.log_info(f"Response: {response.status_code} {response.text}")
+            
