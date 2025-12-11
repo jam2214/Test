@@ -6,7 +6,7 @@ class PingUpdateStatus(Script):
     class Meta:
         name = "Ping & Update Status"
 
-    ip_address = "8.8.8.8"  # Hardcoded for now
+    ip_address = "192.168.21.216"  # Hardcoded for now
 
     def run(self, data, commit=True):
 
@@ -23,3 +23,4 @@ class PingUpdateStatus(Script):
         device.save()
 
         self.log_success(f"Ping result: {result}")
+
