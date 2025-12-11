@@ -14,9 +14,12 @@ class UpdateDeviceStatus(Script):
         name = "Update Device Status"
 
     # Optional input variables can be added here if needed
-    ip_address = "192.168.21.216"  # Replace with actual IP
+    
 
     def run(self, data, commit=True):
+        
+        ip_address = "192.168.21.216"  # Replace with actual IP
+        
         headers = {
             "Authorization": "Token 529a3b0fc593b17fd8f5f02b2211bf0908c7c26c",  # Your NetBox API token
             "Content-Type": "application/json",
@@ -25,10 +28,10 @@ class UpdateDeviceStatus(Script):
 
         def is_ip_reachable(ip):
             # Linux ping: -c 1
-            command = ["ping", "-n", "1", ip]
+            command = ["ping", "-c", "1", ip]
             return subprocess.call(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0
 
-        output = is_ip_reachable(self.ip_address)
+        output = is_ip_reachable(ip_address)
 
         device_id = 39  # DCIM device ID to update
 
@@ -53,4 +56,3 @@ class UpdateDeviceStatus(Script):
             self.log_info(f"Ping result: {output}")
             self.log_info(f"Response: {response.status_code} {response.text}")
             
-
