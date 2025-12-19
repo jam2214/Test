@@ -1,6 +1,9 @@
 import subprocess
 from extras.scripts import Script, ObjectVar
 from dcim.models import Device
+from ipam.models import IPAddress
+from utilities.form import DynamicModelChoiceField
+
 
 class PingUpdateStatus(Script):
     class Meta:
@@ -19,7 +22,7 @@ class PingUpdateStatus(Script):
             self.log_failure("Device has no primary IP")
             return
 
-        ip = str(device.primary_ip.address.ip)
+        ip = str(device.primary_ip4.address.ip)
 
         result = subprocess.call(
             ["ping", "-c", "1", ip],
@@ -35,3 +38,4 @@ class PingUpdateStatus(Script):
         self.log_success(
             f"{device.name} ({ip}) is {'UP' if result else 'DOWN'}"
         )
+
