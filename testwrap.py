@@ -1,58 +1,44 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Dec 10 16:57:17 2025
-
-@author: janalbert.mostert
-"""
-
-from extras.scripts import Script
 import subprocess
-import requests
+from extras.scripts import Script, ObjectVar
+from dcim.models import Device
 
-class UpdateDeviceStatus(Script):
+class PingUpdateStatus(Script):
     class Meta:
-        name = "Update Device Status"
+        name = "Ping & Update Status"
+        description = "Ping a device and update its status custom field"
 
-    # Optional input variables can be added here if needed
-    
+    device = ObjectVar(
+        model=Device,
+        required=True,
+        description="Device to ping"
+    )
 
     def run(self, data, commit=True):
-        
-        ip_address = "192.168.21.216"  # Replace with actual IP
-        
-        headers = {
-            "Authorization": "Token 529a3b0fc593b17fd8f5f02b2211bf0908c7c26c",  # Your NetBox API token
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        }
+        device = data["device"]
 
+        if not device.primary_ip:
+            self.log_failure("Device has no primary IP")
+            return
+
+        ip = device.primary_ip.address.ip.exploded
+
+        # --- ping function ---
         def is_ip_reachable(ip):
-            # Linux ping: -c 1
             command = ["ping", "-c", "1", ip]
-            return subprocess.call(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0
+            return subprocess.call(
+                command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            ) == 0
 
-        output = is_ip_reachable(ip_address)
+        result = is_ip_reachable(ip)
 
-        device_id = 39  # DCIM device ID to update
+        # --- update NetBox object ---
+        device.custom_field_data["status"] = "UP" if result else "DOWN"
 
-        if output:
-            
-            payload = {"custom_fields": {"Status": True}}
+        if commit:
+            device.save()
 
-            url = f"https://10.250.11.12/api/dcim/devices/{device_id}/"
-
-            response = requests.patch(url, headers=headers, verify=False, json=payload)
-
-            self.log_info(f"Ping result: {output}")
-            self.log_info(f"Response: {response.status_code} {response.text}")
-
-        else:
-            payload = {"custom_fields": {"Status": False}}
-
-            url = f"https://10.250.11.12/api/dcim/devices/{device_id}/"
-
-            response = requests.patch(url, headers=headers, verify=False, json=payload)
-
-            self.log_info(f"Ping result: {output}")
-            self.log_info(f"Response: {response.status_code} {response.text}")
-            
+        self.log_success(
+            f"{device.name} ({ip}) is {'UP' if result else 'DOWN'}"
+        )
