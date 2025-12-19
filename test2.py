@@ -1,6 +1,6 @@
+import subprocess
 from extras.scripts import Script, ObjectVar
 from dcim.models import Device
-import subprocess
 
 class PingUpdateStatus(Script):
     class Meta:
@@ -19,7 +19,7 @@ class PingUpdateStatus(Script):
             self.log_failure("Device has no primary IP")
             return
 
-        ip = device.primary_ip.address.ip.exploded
+        ip = str(device.primary_ip.address.ip)
 
         result = subprocess.call(
             ["ping", "-c", "1", ip],
@@ -33,5 +33,5 @@ class PingUpdateStatus(Script):
             device.save()
 
         self.log_success(
-            f"{device.name} is {'UP' if result else 'DOWN'}"
+            f"{device.name} ({ip}) is {'UP' if result else 'DOWN'}"
         )
