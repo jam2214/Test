@@ -7,7 +7,6 @@ from dcim.models import Device
 class PingUpdateStatus(Script):
     class Meta:
         name = "Ping & Update Status (Custom Field)"
-        description = "Ping device primary IPv4 and update boolean custom field 'status'"
 
     device = ObjectVar(
         model=Device,
@@ -22,7 +21,8 @@ class PingUpdateStatus(Script):
             self.log_failure("Device has no primary IPv4 address")
             return
 
-        ip = str(device.primary_ip4.address.ip)
+        # SAFE for all NetBox versions
+        ip = str(device.primary_ip4.address).split("/")[0]
 
         try:
             result = subprocess.call(
@@ -31,10 +31,10 @@ class PingUpdateStatus(Script):
                 stderr=subprocess.DEVNULL
             ) == 0
         except Exception as e:
-            self.log_failure(f"Ping failed to execute: {e}")
+            self.log_failure(f"Ping execution failed: {e}")
             return
 
-        # REQUIRED BY USER: custom_field_data assignment
+        # Required by user
         device.custom_field_data["status"] = result
 
         if commit:
