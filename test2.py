@@ -10,19 +10,21 @@ class PingUpdateStatus(Script):
 
     def run(self, data, commit=True):
 
-        # --- ping function ---
-       def is_ip_reachable(ip):
-           command = ["ping", "-c", "1", ip]  # Linux
-           return subprocess.call(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0
+        def is_ip_reachable(ip):
+            command = ["ping", "-c", "1", ip]
+            return subprocess.call(
+                command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            ) == 0
 
         result = is_ip_reachable(self.ip_address)
 
-        # --- update NetBox object directly through ORM ---
-        device = Device.objects.get(id=39)
-        device.custom_field_data["Status"] = result
-        device.save()
+        device = Device.objects.first()  # safer than hardcoding ID
+
+        device.custom_field_data["status"] = result
+
+        if commit:
+            device.save()
 
         self.log_success(f"Ping result: {result}")
-
-
-
