@@ -1,30 +1,37 @@
-import subprocess
-from extras.scripts import Script
+from extras.scripts import Script, ObjectVar
 from dcim.models import Device
+import subprocess
 
 class PingUpdateStatus(Script):
     class Meta:
         name = "Ping & Update Status"
 
-    ip_address = "8.8.8.8"  # Hardcoded for now
+    device = ObjectVar(
+        model=Device,
+        required=True,
+        description="Device to ping"
+    )
 
     def run(self, data, commit=True):
+        device = data["device"]
 
-        def is_ip_reachable(ip):
-            command = ["ping", "-c", "1", ip]
-            return subprocess.call(
-                command,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
-            ) == 0
+        if not device.primary_ip:
+            self.log_failure("Device has no primary IP")
+            return
 
-        result = is_ip_reachable(self.ip_address)
+        ip = device.primary_ip.address.ip.exploded
 
-        device = Device.objects.first()  # safer than hardcoding ID
+        result = subprocess.call(
+            ["ping", "-c", "1", ip],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        ) == 0
 
         device.custom_field_data["status"] = result
 
         if commit:
             device.save()
 
-        self.log_success(f"Ping result: {result}")
+        self.log_success(
+            f"{device.name} is {'UP' if result else 'DOWN'}"
+        )
