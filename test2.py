@@ -17,11 +17,12 @@ class PingUpdateStatus(Script):
 
         result = is_ip_reachable(self.ip_address)
 
-         --- update NetBox object directly through ORM ---
+        # --- update NetBox object directly through ORM ---
         device = Device.objects.get(id=39)
         device.custom_field_data["Status"] = result
         device.save()
 
         self.log_success(f"Ping result: {result}")
+
 
 
