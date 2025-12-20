@@ -28,7 +28,8 @@ class ShowDeviceInfo(Script):
             stderr=subprocess.DEVNULL
         ) == 0
 
-        device.custom_field_data["status"] = True if result else False
+        device.custom_fields["status"] = True if result else False
+        device.save()
 
         self.log_success(
             f"Selected device: name={device.name}, id={device.id}, ip={primary_ip}"
@@ -36,6 +37,7 @@ class ShowDeviceInfo(Script):
         self.log_success(
             f"Selected device: name={device.name} ({primary_ip}) is {'UP' if result else 'DOWN'}"
         )
+
 
 
 
