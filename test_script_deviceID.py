@@ -32,8 +32,9 @@ class ShowDeviceInfo(Script):
             f"Selected device: name={device.name}, id={device.id}, ip={primary_ip}"
         )
         self.log_success(
-            f"Selected device: name={device.name} ({ip}) is {'UP' if result else 'DOWN'}"
+            f"Selected device: name={device.name} ({primary_ip}) is {'UP' if result else 'DOWN'}"
         )
+
 
 
 
