@@ -1,5 +1,6 @@
 from extras.scripts import Script, ObjectVar
 from dcim.models import Device
+import subprocess
 
 
 class ShowDeviceInfo(Script):
@@ -21,9 +22,18 @@ class ShowDeviceInfo(Script):
             if device.primary_ip
             else "N/A"
         )
+        result = subprocess.call(
+            ["ping", "-c", "1", "-W", "1", primary_ip],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        ) == 0
 
         self.log_success(
             f"Selected device: name={device.name}, id={device.id}, ip={primary_ip}"
         )
+        self.log_success(
+            f"Selected device: name={device.name} ({ip}) is {'UP' if result else 'DOWN'}"
+        )
+
 
 
