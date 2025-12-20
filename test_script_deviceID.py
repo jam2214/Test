@@ -30,9 +30,9 @@ class ShowDeviceInfo(Script):
         ) == 0
 
         if result:
-            device.custom_field_data["status"] = True
+            device.custom_field_data["Status"] = True
         else:
-            device.custom_field_data["status"] = False
+            device.custom_field_data["Status"] = False
 
        # device.custom_field_data = {
         #    **device.custom_field_data,
@@ -48,5 +48,6 @@ class ShowDeviceInfo(Script):
         self.log_success(
             f"{device.name} ({primary_ip}) is {'UP' if result else 'DOWN'}"
         )
+
 
 
