@@ -22,24 +22,25 @@ class ShowDeviceInfo(Script):
             if device.primary_ip
             else "N/A"
         )
+
         result = subprocess.call(
             ["ping", "-c", "1", "-W", "1", primary_ip],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         ) == 0
 
-        device.custom_fields["status"] = True if result else False
-        device.save()
+       
+        device.custom_field_data = {
+            **device.custom_field_data,
+            "status": bool(result),
+        }
+
+        if commit:
+            device.save()
 
         self.log_success(
             f"Selected device: name={device.name}, id={device.id}, ip={primary_ip}"
         )
         self.log_success(
-            f"Selected device: name={device.name} ({primary_ip}) is {'UP' if result else 'DOWN'}"
+            f"{device.name} ({primary_ip}) is {'UP' if result else 'DOWN'}"
         )
-
-
-
-
-
-
