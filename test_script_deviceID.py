@@ -5,8 +5,8 @@ import subprocess
 
 class ShowDeviceInfo(Script):
     class Meta:
-        name = "Show Device Info (Test Script)"
-        description = "Displays the selected device name and ID"
+        name = "Ping IP & Update Cusom Field (Script)"
+        description = "Ping a device from custom link and get status from ping"
 
     device = ObjectVar(
         model=Device,
@@ -46,11 +46,6 @@ class ShowDeviceInfo(Script):
         else:
             device.custom_field_data["Status"] = False
 
-       # device.custom_field_data = {
-        #    **device.custom_field_data,
-         #   "status": bool(result),
-        #}
-
         if commit:
             device.save()
 
@@ -61,6 +56,7 @@ class ShowDeviceInfo(Script):
             f"Out-Of-Band IP: name={device.name}, id={device.id}, ip={oob_ip_result} is {'UP' if oob_ip_result else 'DOWN'}"
         )
  
+
 
 
 
