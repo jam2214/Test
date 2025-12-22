@@ -22,14 +22,26 @@ class ShowDeviceInfo(Script):
             if device.primary_ip
             else "N/A"
         )
+        oob_ip = (
+            str(device.oob_ip.address).split("/")[0]
+            if device.oob_ip
+            else "N/A"
+        )
 
-        result = subprocess.call(
+        primary_ip_result = subprocess.call(
             ["ping", "-c", "1", "-W", "1", primary_ip],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         ) == 0
+        
+        oob_ip_result = subprocess.call(
+            ["ping", "-c", "1", "-W", "1", primary_ip],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        ) == 0
+        
 
-        if result:
+        if oob_ip_result:
             device.custom_field_data["Status"] = True
         else:
             device.custom_field_data["Status"] = False
@@ -43,11 +55,13 @@ class ShowDeviceInfo(Script):
             device.save()
 
         self.log_success(
-            f"Selected device: name={device.name}, id={device.id}, ip={primary_ip}"
+            f"Primary IP: name={device.name}, id={device.id}, ip={primary_ip} is {'UP' if primary_ip_result else 'DOWN'}"
         )
         self.log_success(
-            f"{device.name} ({primary_ip}) is {'UP' if result else 'DOWN'}"
+            f"Out-Of-Band IP: name={device.name}, id={device.id}, ip={oob_ip_result} is {'UP' if oob_ip_result else 'DOWN'}"
         )
+ 
+
 
 
 
